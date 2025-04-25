@@ -9,4 +9,4 @@ Dataset should be labeled and stored as CSV files in the folder "data":
 - data/dev.csv: dev set
 - data/test.csv: test set
 
-Columns for each of the csv file should be "text" (containing the text of a given code) and "label" (containing the label of the code).
+Each of these csvs should contain a column called "text" (a string representing the text of a given code) and "label" (a number from 0 to K, based on the K codes in the dataset).
