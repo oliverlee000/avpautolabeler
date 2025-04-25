@@ -1,4 +1,5 @@
-import argparse, np, random, tqdm
+import argparse, numpy as np, random, tqdm
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
@@ -9,7 +10,7 @@ Here we define the classifier based on the BERT base model.
 '''
 
 BERT_HIDDEN_SIZE = 768
-NUMBER_OF_CODES = 10
+OUTPUT_SIZE = 1
 
 # Dropout probabilities
 INPUT_DROP = 0.1
@@ -48,6 +49,20 @@ class FF(nn.Module):
         return output
 
 # Define classification model
+class CodingClassifier(nn.Module):
+    def __init__(self, config):
+        super().__init__()
+        self.models = nn.ModuleList([BertClassifier(config) for _ in range(config.ncodes)])
+    
+    def get_model(self, i):
+        return self.models[i]
+    
+    def forward(self, input_ids, attention_masks):
+        output_tupled = tuple(model(input_ids, attention_masks) for model in self.models)
+        output = torch.stack(output_tupled, dim=1).view(len(input_ids), -1)
+        return output
+
+
 class BertClassifier(nn.Module):
     def __init__(self, config):
         super(BertClassifier, self).__init__()
@@ -65,9 +80,9 @@ class BertClassifier(nn.Module):
         if config.num_linear_layers > 1:
             linear_layers.append(FF(BERT_HIDDEN_SIZE, config.ll_hidden_size, INPUT_DROP))
             linear_layers.extend([FF(config.ll_hidden_size, config.ll_hidden_size, HIDDEN_DROP) for _ in range(config.num_linear_layers - 2)])
-            linear_layers.append(FF(config.ll_hidden_size, NUMBER_OF_CODES, OUTPUT_DROP))
+            linear_layers.append(FF(config.ll_hidden_size, OUTPUT_SIZE, OUTPUT_DROP))
         else:
-            linear_layers.append(FF(BERT_HIDDEN_SIZE, NUMBER_OF_CODES))
+            linear_layers.append(FF(BERT_HIDDEN_SIZE, OUTPUT_SIZE))
         self.linear_layers = linear_layers
     
     # Predicts code given an input
