@@ -7,7 +7,7 @@ python main.py --ncodes 5 --train example_data/train.csv --dev data/dev.csv
 
 To test on example dataset, run command
 ```
-python main.py --ncodes 5 --train example_data/train.csv --dev example_data/dev.csv --fine_tune_mode last-linear-layer
+python main.py --ncodes 5 --train example_data/train.csv --dev example_data/dev.csv --fine-tune-mode last-linear-layer
 ```
 
 Call command ```python main.py --help``` to see all possible parameters.
