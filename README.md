@@ -12,9 +12,9 @@ python main.py --ncodes 5 --train example_data/train.csv --dev example_data/dev.
 
 Call command ```python main.py --help``` to see all possible parameters.
 
-Since I'm just looking to improve the model now, the code does not run the model on the test set, just the train and dev sets.
+**(Below is more for me than anyone else to preprocess the data so that it can be fed into the model)**
 
-Autocoding label is a classification model, taking a string of text as input, feeding it into an embedding layer (pretrained from Bert), then into a feed forward layer. 
+Since I'm just looking to improve the model now, the code does not run the model on the test set, just the train and dev sets.
 
 Dataset should be labeled and stored as CSV files in the folder "data":
 - data/train.csv: training set
