@@ -1,5 +1,17 @@
 Trains and runs an autolabeling model based on a dataset, split into train, dev, and test sets.
 
+To test on actual dataset, run command
+```
+python main.py --ncodes 5 --train example_data/train.csv --dev data/dev.csv
+```
+
+To test on example dataset, run command
+```
+python main.py --ncodes 5 --train example_data/train.csv --dev example_data/dev.csv --fine_tune_mode last-linear-layer
+```
+
+Call command ```python main.py --help``` to see all possible parameters.
+
 Since I'm just looking to improve the model now, the code does not run the model on the test set, just the train and dev sets.
 
 Autocoding label is a classification model, taking a string of text as input, feeding it into an embedding layer (pretrained from Bert), then into a feed forward layer. 
