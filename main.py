@@ -125,7 +125,7 @@ def train_classifier(args):
             epoch_loss += loss.item()
         train_loss = epoch_loss / num_batches
         best_dev_acc = 0
-        current_dev_acc, _, _, _ = model_eval(dev_dataloader, classifier_model, device)
+        current_dev_acc, _, _, _, _ = model_eval(dev_dataloader, classifier_model, device)
         # Save model if current dev accuracy is better than best dev accuracy
         if current_dev_acc > best_dev_acc:
             best_dev_acc = current_dev_acc
@@ -152,12 +152,12 @@ def test_classifier(args):
         print(f"Loaded model to test from {args.filepath}")
 
         dev_dataloader = batch_data(args, args.dev)
-        dev_acc, dev_f1, dev_y_pred, dev_y_true, dev_sents, dev_sent_ids = model_eval(dev_dataloader, model, device)
-        # CHANGE to be a CSV with sentence and model's prediction
+        dev_acc, dev_f1, dev_y_pred, dev_y_true, dev_ids = model_eval(dev_dataloader, model, device)
+        # CHANGE to be a CSV with sentence andmodel's prediction
         with open(args.dev_out, "w+") as f:
             print(f"dev acc :: {dev_acc :.3f}")
             f.write(f"id \t Predicted_Codes \n")
-            for p, s in zip(dev_sent_ids, dev_y_pred):
+            for p, s in zip(dev_ids, dev_y_pred):
                 f.write(f"{p} , {s} \n")
 
 def get_args():
