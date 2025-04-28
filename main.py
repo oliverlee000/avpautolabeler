@@ -114,14 +114,10 @@ def train_classifier(args):
             
             optimizer.zero_grad()
             logits = classifier_model(input_ids, attention_mask)  # size [batch_size, ncodes]
-            #logits_unbound, labels_unbound = torch.unbind(logits, dim=1), torch.unbind(labels, dim=1)
 
             # Go through each code, get training loss for each code
             loss = 0
             for i in range(args.ncodes):
-                '''logits = logits_unbound[i]
-                label = labels_unbound[i]  
-                '''
                 loss += loss_fn(logits[:, i], label[:, i].float())
             loss.backward()
             optimizer.step()
