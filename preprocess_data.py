@@ -107,6 +107,13 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
     df_transcripts = pd.DataFrame(rows, columns=["text", "label", "codes", "filename"])
     return df_transcripts
 
+'''
+Remove all rows in df where the file does not have any codes
+'''
+def remove_transcripts_with_no_codes(df):
+    filtered_df = df.groupby('filename').filter(lambda g: g['label'].str.strip().astype(bool).any())
+    return filtered_df
+
 def main():
     codes_folder = input("Insert path name of NVivo codes folder:")
     output_folder = "preprocessed_output"
@@ -119,6 +126,12 @@ def main():
 
 
     df_labeled_transcripts = create_labeled_transcript_df(df_codes, df_transcripts)
+    
+
+    remove_rows = input("Would you like to delete all files with no codes from the dataframe? (y/n)")
+    if remove_rows == "y":
+        df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
+
     df_labeled_transcripts.to_csv(os.path.join(output_folder, "transcripts_labeled.csv"))
 
 if __name__ == "__main__":
