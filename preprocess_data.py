@@ -64,7 +64,7 @@ def create_transcript_df(transcripts_folder):
             for response in responses:
                 lines = [line.strip() for line in re.split('[,.?!-—:]', response)] # Split by punctuation
                 for line in lines:
-                    rows.append([line.strip(), os.path.splittext(transcript)[0]])
+                    rows.append([line.strip(), os.path.splitext(transcript)[0]])
 
     # Create DataFrame
     df_transcripts = pd.DataFrame(rows, columns=["line", "filename"])
