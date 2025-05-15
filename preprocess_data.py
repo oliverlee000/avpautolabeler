@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import re
+from collections import defaultdict
 
 def create_code_df(codes_folder):
     # Directory containing the .txt files with coded sentences
@@ -41,7 +42,11 @@ def create_code_df(codes_folder):
     df_codes = pd.DataFrame(rows, columns=["sentence", "code_no", "code_name", "filename"])
     return df_codes
 
-def create_transcript_df(transcripts_folder):
+'''
+filter_for_named = TRUE if you just want to add transcripts whose filenames wstarts with a letter
+
+'''
+def create_transcript_df(transcripts_folder, filter_for_named=True):
     # Directory containing the .txt files with transcripts
 
     # Initialize list to collect rows
@@ -50,6 +55,8 @@ def create_transcript_df(transcripts_folder):
     # Loop through each file in the folder
     for transcript in os.listdir(transcripts_folder):
         if transcript.endswith(".txt"):
+            if filter_for_named and not re.match("^[A-Z]", transcript):
+                continue
             file_path = os.path.join(transcripts_folder, transcript)
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -81,6 +88,24 @@ Match based on filename and whether df_transcripts["line"] is a substring of df_
 '''
 def create_labeled_transcript_df(df_codes, df_transcripts):
     rows = []
+    code_dict = defaultdict(list)
+    for index, code_row in df_codes.itterrows():
+        code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
+        for index, transcript_row in df_transcripts["filename" == filename].iterrows():
+            transcript_line, filename = transcript_row["line"], transcript_row["filename"]
+            # Substring match
+            if transcript_line in code_line or code_line in transcript_line:
+                # Match, add code to matching_codes
+                code_dict[transcript_line].append((code_no, code_name))
+    for key, value in code_dict.items():
+        code_no = ""
+        code_name = ""
+        if len(value) != 0:
+            code_no = ", ".join([v[0] for v in value])
+            code_name = ", ".join([v[1] for v in value])
+        new_row = [transcript_line, code_no, code_name, filename]
+        rows.append(new_row)
+    '''
     for index, transcript_row in df_transcripts.iterrows():
         transcript_line, filename = transcript_row["line"], transcript_row["filename"]
         matching_codes_no = []
@@ -103,6 +128,7 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
             matching_codes = ", ".join(matching_codes)
         new_row = [transcript_line, matching_codes_no, matching_codes, filename]
         rows.append(new_row)
+    '''
     # Create DataFrame
     df_transcripts = pd.DataFrame(rows, columns=["text", "label", "codes", "filename"])
     return df_transcripts
