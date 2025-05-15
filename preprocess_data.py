@@ -30,7 +30,7 @@ def create_code_df(codes_folder):
             for line in lines:
                 if line.startswith("<File"):
                     # Extract file name
-                    filename = re.search(re.search("(?<=\\\\).*(?=>)", line)).group()
+                    filename = re.search("(?<=\\\\).*(?=>)", line).group()
                 elif re.search(r'[a-zA-Z]', line) and not line.startswith("Reference"):
                     filtered_lines.append((line, filename))
 
