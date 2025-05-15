@@ -14,6 +14,7 @@ def model_eval(dataloader, model, device):
     model.eval()  # Switch to eval model, will turn off randomness like dropout.
     y_true = []
     y_pred = []
+    ids = []
     for step, batch in enumerate(tqdm(dataloader, desc=f'eval', disable=TQDM_DISABLE)):
         b_ids, b_mask, b_labels = batch['input_ids'],batch['attention_mask'], batch['label']
         b_labels_unbound = torch.unbind(b_labels, dim=1)
@@ -29,8 +30,9 @@ def model_eval(dataloader, model, device):
 
         y_true.extend(preds.numpy())
         y_pred.extend(labels.numpy())
+        ids.extend(b_ids.numpy())
 
     f1 = f1_score(y_true, y_pred, average='macro')
     acc = accuracy_score(y_true, y_pred)
 
-    return acc, f1, y_pred, y_true
+    return acc, f1, y_pred, y_true, ids
