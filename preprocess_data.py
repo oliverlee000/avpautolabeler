@@ -18,7 +18,7 @@ def create_code_df(codes_folder):
     for codename in os.listdir(codes_folder):
         if codename.endswith(".txt"):
             file_path = os.path.join(codes_folder, codename)
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, "r", encoding="Latin-1") as f:
                 content = f.read()
 
             # Split content into lines
@@ -58,7 +58,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
             if filter_for_named and not re.match("^[A-Z]", transcript):
                 continue
             file_path = os.path.join(transcripts_folder, transcript)
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, "r", encoding="Latin-1") as f:
                 content = f.read()
 
             # Split content into lines
