@@ -149,6 +149,7 @@ def main():
     parser.add_argument('--transcripts_folder', type=str, help='Path to folder that contains unlabeled transcripts as txt files')
     parser.add_argument('--output_folder', type=str, help='Output folder to store processed data', default="preprocessed_output")
     parser.add_argument('--remove_empty', action='store_true', help='Remove all rows from transcripts with no codes from df')
+    parser.add_argument('--filter_for_named', action='store_true', help='Filter for transcript files whose names begin with an alphabetic character')
     args = parser.parse_args()
 
     if args.codes_df:
@@ -164,7 +165,7 @@ def main():
         df_transcripts = pd.read_csv(args.transcripts_df)
     else:
         transcripts_folder = input("Insert path name of transcripts folder:")
-        df_transcripts = create_transcript_df(transcripts_folder)
+        df_transcripts = create_transcript_df(transcripts_folder, filter_for_named=args.filter_for_named)
         df_transcripts.to_csv(os.path.join(args.output_folder, "transcripts_unlabeled.csv"))
 
 
