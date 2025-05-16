@@ -104,7 +104,7 @@ Match based on filename and whether df_transcripts["line"] is a substring of df_
 '''
 def create_labeled_transcript_df(df_codes, df_transcripts):
     rows = []
-    dictionaries = {}
+    dictionaries = {} # Mapping of filename to list of coded lines
     for index, code_row in df_codes.iterrows():
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
         # Skip empty text
@@ -121,10 +121,10 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
                 if transcript_line in code_line or code_line in transcript_line or has_char_overlap(code_line, transcript_line, min_overlap=15):
                     # Match, add code to matching_codes
                     if filename in dictionaries:
-                        dictionaries[filename].append(((str(code_no), code_name)))
+                        dictionaries[filename][line].append(((str(code_no), code_name)))
                     else:
                         print(f"Extracting codes from {filename}")
-                        dictionaries[filename] = []
+                        dictionaries[filename] = defaultdict(tuple)
     for filename, filename_dict in dictionaries.items():
         for line, value in filename_dict.items():
             code_no = ""
