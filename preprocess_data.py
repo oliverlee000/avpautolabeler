@@ -121,7 +121,7 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
                 if transcript_line in code_line or code_line in transcript_line or has_char_overlap(code_line, transcript_line, min_overlap=15):
                     # Match, add code to matching_codes
                     if filename in dictionaries:
-                        dictionaries[filename][line].append(((str(code_no), code_name)))
+                        dictionaries[filename][transcript_line].append(((str(code_no), code_name)))
                     else:
                         print(f"Extracting codes from {filename}")
                         dictionaries[filename] = defaultdict(tuple)
