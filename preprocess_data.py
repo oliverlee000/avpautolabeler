@@ -146,7 +146,7 @@ def main():
     parser.add_argument('--codes_df', type=str, help='Path to code dataframe file')
     parser.add_argument('--transcripts_df', type=str, help='Path to unlabeled transcript dataframe file')
     parser.add_argument('--codes_folder', type=str, help='Path to folder that contains NVivo codes as txt files')
-    parser.add_argument('--codes_folder', type=str, help='Path to folder that contains unlabeled transcrtips as txt files')
+    parser.add_argument('--transcripts_folder', type=str, help='Path to folder that contains unlabeled transcripts as txt files')
     parser.add_argument('--output_folder', type=str, help='Output folder to store processed data', default="preprocessed_output")
     parser.add_argument('--remove_empty_transcripts', type=str, help='Remove all rows from transcripts with no codes from df')
     args = parser.parse_args()
