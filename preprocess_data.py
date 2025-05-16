@@ -95,7 +95,7 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
     code_dict = defaultdict(list)
     for index, code_row in df_codes.iterrows():
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
-        filtered_df = df_transcripts["filename" == filename] # Search through entries with matching filename
+        filtered_df = df_transcripts[df_transcripts["filename"].str.contains(filename)] # Search through entries with matching filename
         if len(filtered_df) > 0:
             for index, transcript_row in filtered_df.iterrows():
                 transcript_line, filename = transcript_row["line"], transcript_row["filename"]
