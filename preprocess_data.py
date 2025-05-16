@@ -158,7 +158,7 @@ def main():
         print(f"Using codes_df path: {args.codes_df}")
         df_codes = pd.read_csv(args.codes_df)
     else:
-        codes_folder = input("Insert path name of NVivo codes folder:")
+        codes_folder = args.codes_folder if args.codes_folder else input("Insert path name of NVivo codes folder:")
         df_codes = create_code_df(codes_folder)
         df_codes_pn = os.path.join(args.output_folder, "codes.csv")
         df_codes.to_csv(df_codes_pn)
@@ -168,7 +168,7 @@ def main():
         print(f"Using transcripts_df path: {args.transcripts_df}")
         df_transcripts = pd.read_csv(args.transcripts_df)
     else:
-        transcripts_folder = input("Insert path name of transcripts folder:")
+        transcripts_folder = args.transcripts_folder if args.transcripts_folder else input("Insert path name of transcripts folder:")
         df_transcripts = create_transcript_df(transcripts_folder, filter_for_named=args.filter_for_named)
         transcripts_pn = os.path.join(args.output_folder, "transcripts_unlabeled.csv")
         df_transcripts.to_csv(df_codes_pn)
