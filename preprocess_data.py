@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import re
 from collections import defaultdict
+import argparse
 
 def create_code_df(codes_folder):
     # Directory containing the .txt files with coded sentences
@@ -30,7 +31,7 @@ def create_code_df(codes_folder):
             for line in lines:
                 if line.startswith("<File"):
                     # Extract file name
-                    filename = re.search("(?<=\\\\).*(?=>)", line).group()
+                    filename = re.search("(?<=\\\\)\W.*(?=>)", line).group()
                 elif re.search(r'[a-zA-Z]', line) and not line.startswith("Reference"):
                     filtered_lines.append((line, filename))
 
@@ -69,7 +70,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
 
             # Append each filtered line with the corresponding file name
             for response in responses:
-                lines = [line.strip() for line in re.split('[,.?!-—:]', response)] # Split by punctuation
+                lines = [l for l in re.split('[,.?!-—:] ', response)] # Split by punctuation
                 for line in lines:
                     rows.append([line.strip(), os.path.splitext(transcript)[0]])
 
@@ -89,7 +90,7 @@ Match based on filename and whether df_transcripts["line"] is a substring of df_
 def create_labeled_transcript_df(df_codes, df_transcripts):
     rows = []
     code_dict = defaultdict(list)
-    for index, code_row in df_codes.itterrows():
+    for index, code_row in df_codes.iterrows():
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
         for index, transcript_row in df_transcripts["filename" == filename].iterrows():
             transcript_line, filename = transcript_row["line"], transcript_row["filename"]
@@ -141,24 +142,41 @@ def remove_transcripts_with_no_codes(df):
     return filtered_df
 
 def main():
-    codes_folder = input("Insert path name of NVivo codes folder:")
-    output_folder = "preprocessed_output"
-    df_codes = create_code_df(codes_folder)
-    df_codes.to_csv(os.path.join(output_folder, "codes.csv"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--codes_df', type=str, help='Path to code dataframe file')
+    parser.add_argument('--transcripts_df', type=str, help='Path to unlabeled transcript dataframe file')
+    parser.add_argument('--codes_folder', type=str, help='Path to folder that contains NVivo codes as txt files')
+    parser.add_argument('--codes_folder', type=str, help='Path to folder that contains unlabeled transcrtips as txt files')
+    parser.add_argument('--output_folder', type=str, help='Output folder to store processed data', default="preprocessed_output")
+    parser.add_argument('--remove_empty_transcripts', type=str, help='Remove all rows from transcripts with no codes from df')
+    args = parser.parse_args()
 
-    transcripts_folder = input("Insert path name of transcripts folder:")
-    df_transcripts = create_transcript_df(transcripts_folder)
-    df_transcripts.to_csv(os.path.join(output_folder, "transcripts_unlabeled.csv"))
+    df_codes, df_transcripts = None, None
+    if args.code_df:
+        print(f"Using codes_df path: {args.codes_df}")
+        df_codes = pd.read_csv(args.codes_df)
+    else:
+        codes_folder = input("Insert path name of NVivo codes folder:")
+        df_codes = create_code_df(codes_folder)
+        df_codes.to_csv(os.path.join(args.output_folder, "codes.csv"))
+    
+    if args.transcripts_df:
+        print(f"Using transcripts_df path: {args.transcripts_df}")
+        df_transcripts = pd.read_csv(args.transcripts_df)
+    else:
+        transcripts_folder = input("Insert path name of transcripts folder:")
+        df_transcripts = create_transcript_df(transcripts_folder)
+        df_transcripts.to_csv(os.path.join(args.output_folder, "transcripts_unlabeled.csv"))
 
 
     df_labeled_transcripts = create_labeled_transcript_df(df_codes, df_transcripts)
     
+    if args.remove_empty_transcripts:
+        remove_rows = input("Would you like to delete all files with no codes from the dataframe? (y/n)")
+        if remove_rows == "y":
+            df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
 
-    remove_rows = input("Would you like to delete all files with no codes from the dataframe? (y/n)")
-    if remove_rows == "y":
-        df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
-
-    df_labeled_transcripts.to_csv(os.path.join(output_folder, "transcripts_labeled.csv"))
+    df_labeled_transcripts.to_csv(os.path.join(args.output_folder, "transcripts_labeled.csv"))
 
 if __name__ == "__main__":
     main()
