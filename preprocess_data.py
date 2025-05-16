@@ -104,7 +104,7 @@ Match based on filename and whether df_transcripts["line"] is a substring of df_
 '''
 def create_labeled_transcript_df(df_codes, df_transcripts):
     rows = []
-    code_dict = defaultdict(list)
+    dictionaries = {}
     for index, code_row in df_codes.iterrows():
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
         # Skip empty text
@@ -118,19 +118,21 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
                 transcript_line = transcript_line.strip()
                 code_line = code_line.strip()
                 # Substring match
-                if transcript_line in code_line or code_line in transcript_line:
+                if transcript_line in code_line or code_line in transcript_line or has_char_overlap(code_line, transcript_line, min_overlap=15):
                     # Match, add code to matching_codes
-                    code_dict[transcript_line].append((str(code_no), code_name))
-                elif has_char_overlap(code_line, transcript_line, min_overlap=15): #check for 15 character overlap
-                    code_dict[transcript_line].append((str(code_no), code_name))
-    for key, value in code_dict.items():
-        code_no = ""
-        code_name = ""
-        if len(value) != 0:
-            code_no = ", ".join([v[0] for v in value])
-            code_name = ", ".join([v[1] for v in value])
-        new_row = [transcript_line, code_no, code_name, filename]
-        rows.append(new_row)
+                    if dictionaries[filename]:
+                        dictionaries[filename].append(((str(code_no), code_name)))
+                    else:
+                        dictionaries[filename] = []
+    for filename, filename_dict in dictionaries.items():
+        for line, value in filename_dict.items():
+            code_no = ""
+            code_name = ""
+            if len(value) != 0:
+                code_no = ", ".join([v[0] for v in value])
+                code_name = ", ".join([v[1] for v in value])
+            new_row = [line, code_no, code_name, filename]
+            rows.append(new_row)
     '''
     for index, transcript_row in df_transcripts.iterrows():
         transcript_line, filename = transcript_row["line"], transcript_row["filename"]
