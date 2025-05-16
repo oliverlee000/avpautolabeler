@@ -4,6 +4,15 @@ import re
 from collections import defaultdict
 import argparse
 
+
+def has_char_overlap(s1, s2, min_overlap=15):
+    len1, len2 = len(s1), len(s2)
+    for i in range(len1 - min_overlap + 1):
+        substr = s1[i:i + min_overlap]
+        if substr in s2:
+            return True
+    return False
+
 def create_code_df(codes_folder):
     # Directory containing the .txt files with coded sentences
 
@@ -100,6 +109,7 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
         if not code_line or len(code_line) == 0:
             continue
+        code_line = code_line.strip()
         filtered_df = df_transcripts[df_transcripts["filename"].str.startswith(filename)] # Search through entries with matching filename
         if len(filtered_df) > 0:
             for index, transcript_row in filtered_df.iterrows():
@@ -107,6 +117,8 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
                 # Substring match
                 if transcript_line in code_line or code_line in transcript_line:
                     # Match, add code to matching_codes
+                    code_dict[transcript_line].append((code_no, code_name))
+                elif has_char_overlap(code_line, transcript_line, min_overlap=15): #check for 15 character overlap
                     code_dict[transcript_line].append((code_no, code_name))
     for key, value in code_dict.items():
         code_no = ""
