@@ -209,6 +209,8 @@ def main():
     df_labeled_transcripts = create_labeled_transcript_df(df_codes, df_transcripts)
     
     if args.remove_empty:
+        df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
+    else:
         remove_rows = input("Would you like to delete all files with no codes from the dataframe? (y/n)")
         if remove_rows == "y":
             df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
