@@ -124,7 +124,7 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
                         dictionaries[filename][transcript_line].append(((str(code_no), code_name)))
                     else:
                         print(f"Extracting codes from {filename}")
-                        dictionaries[filename] = defaultdict(tuple)
+                        dictionaries[filename] = defaultdict(list)
     for filename, filename_dict in dictionaries.items():
         for line, value in filename_dict.items():
             code_no = ""
