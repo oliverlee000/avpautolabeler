@@ -69,7 +69,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
             filtered_responses = [line for line in responses if re.search(r'[a-zA-Z]', line) and not line.startswith("Interviewer")]
 
             # Append each filtered line with the corresponding file name
-            for response in responses:
+            for response in filtered_responses:
                 lines = [l for l in re.split('[,.?!-—:] ', response)] # Split by punctuation
                 for line in lines:
                     rows.append([line.strip(), os.path.splitext(transcript)[0]])
@@ -92,12 +92,14 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
     code_dict = defaultdict(list)
     for index, code_row in df_codes.iterrows():
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
-        for index, transcript_row in df_transcripts["filename" == filename].iterrows():
-            transcript_line, filename = transcript_row["line"], transcript_row["filename"]
-            # Substring match
-            if transcript_line in code_line or code_line in transcript_line:
-                # Match, add code to matching_codes
-                code_dict[transcript_line].append((code_no, code_name))
+        filtered_df = df_transcripts["filename" == filename] # Search through entries with matching filename
+        if len(filtered_df) > 0:
+            for index, transcript_row in filtered_df.iterrows():
+                transcript_line, filename = transcript_row["line"], transcript_row["filename"]
+                # Substring match
+                if transcript_line in code_line or code_line in transcript_line:
+                    # Match, add code to matching_codes
+                    code_dict[transcript_line].append((code_no, code_name))
     for key, value in code_dict.items():
         code_no = ""
         code_name = ""
@@ -158,7 +160,9 @@ def main():
     else:
         codes_folder = input("Insert path name of NVivo codes folder:")
         df_codes = create_code_df(codes_folder)
-        df_codes.to_csv(os.path.join(args.output_folder, "codes.csv"))
+        df_codes_pn = os.path.join(args.output_folder, "codes.csv")
+        df_codes.to_csv(df_codes_pn)
+        print(f"codes_df created at pathname {df_codes_pn}.")
     
     if args.transcripts_df:
         print(f"Using transcripts_df path: {args.transcripts_df}")
@@ -166,7 +170,9 @@ def main():
     else:
         transcripts_folder = input("Insert path name of transcripts folder:")
         df_transcripts = create_transcript_df(transcripts_folder, filter_for_named=args.filter_for_named)
-        df_transcripts.to_csv(os.path.join(args.output_folder, "transcripts_unlabeled.csv"))
+        transcripts_pn = os.path.join(args.output_folder, "transcripts_unlabeled.csv")
+        df_transcripts.to_csv(df_codes_pn)
+        print(f"transcripts_unlabeled_df created at pathname {transcripts_pn}.")
 
 
     df_labeled_transcripts = create_labeled_transcript_df(df_codes, df_transcripts)
@@ -176,7 +182,10 @@ def main():
         if remove_rows == "y":
             df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
 
-    df_labeled_transcripts.to_csv(os.path.join(args.output_folder, "transcripts_labeled.csv"))
+    transcripts_pn = os.path.join(args.output_folder, "transcripts_labeled.csv")
+    df_labeled_transcripts.to_csv(transcripts_pn)
+    print(f"transcripts_labeled_df created at pathname {transcripts_pn}.")
+    print("Done.")
 
 if __name__ == "__main__":
     main()
