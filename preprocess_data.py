@@ -56,6 +56,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
     # Loop through each file in the folder
     for transcript in os.listdir(transcripts_folder):
         if transcript.endswith(".txt"):
+            filename = os.path.splitext(transcript)[0]
             if filter_for_named and not re.match("^[A-Z]", transcript):
                 continue
             file_path = os.path.join(transcripts_folder, transcript)
@@ -63,16 +64,18 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
                 content = f.read()
 
             # Split content into lines
-            responses = content.split('\n')
-
-            # Filter lines that contain at least one alphabetic character and do not begin with "Interviewer"
-            filtered_responses = [line for line in responses if re.search(r'[a-zA-Z]', line) and not line.startswith("Interviewer")]
-
-            # Append each filtered line with the corresponding file name
-            for response in filtered_responses:
-                lines = [l for l in re.split('[,.?!-—:] ', response)] # Split by punctuation
-                for line in lines:
-                    rows.append([line.strip(), os.path.splitext(transcript)[0]])
+            lines = content.split('\n')
+            is_interviewee = False
+            for line in lines:
+                if line.startswith("Interviewer"):
+                    is_interviewer = False
+                elif line.startswith("Interviewee"):
+                    is_interviewer = True
+                    line = re.search("(<=Interviewer:).*", line).group()
+                if is_interviewee:
+                    sentences = [s.strip() for s in line.split(".")] # split by period
+                    for sentence in sentences:
+                        rows.append([sentence, filename])
 
     # Create DataFrame
     df_transcripts = pd.DataFrame(rows, columns=["line", "filename"])
@@ -160,6 +163,7 @@ def main():
         df_codes = pd.read_csv(args.codes_df)
     else:
         codes_folder = args.codes_folder if args.codes_folder else input("Insert path name of NVivo codes folder:")
+        print(f"Using {codes_folder}")
         df_codes = create_code_df(codes_folder)
         
         # Write CSV
@@ -173,6 +177,7 @@ def main():
         df_transcripts = pd.read_csv(args.transcripts_df)
     else:
         transcripts_folder = args.transcripts_folder if args.transcripts_folder else input("Insert path name of transcripts folder:")
+        print(f"Using {transcripts_folder}")
         df_transcripts = create_transcript_df(transcripts_folder, filter_for_named=args.filter_for_named)
         
         # Write CSV
