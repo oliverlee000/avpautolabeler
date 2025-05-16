@@ -33,11 +33,13 @@ def create_code_df(codes_folder):
                     # Extract file name
                     filename = re.search("(?<=\\\\)\w.*(?=>)", line).group()
                 elif re.search(r'[a-zA-Z]', line) and not line.startswith("Reference"):
+                    if line.startswith("Interviewee:") or line.startswith("Interviewer:"):
+                        line = re.search("(?<=Interviewee:|Interviewer:).*", line).group()
                     filtered_lines.append((line, filename))
 
             # Append each filtered line with the corresponding file name
             for line, filename in filtered_lines:
-                rows.append([line.strip(), codename_to_id[codename], codename, filename])
+                rows.append([line, codename_to_id[codename], codename, filename])
 
     # Create DataFrame
     df_codes = pd.DataFrame(rows, columns=["sentence", "code_no", "code_name", "filename"])
@@ -66,6 +68,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
             # Split content into lines
             lines = content.split('\n')
             is_interviewee = False
+            for i in range(0, len(lines), 2)
             for line in lines:
                 if line.startswith("Interviewer"):
                     is_interviewee = False
@@ -74,8 +77,9 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
                     line = re.search("(?<=Interviewee:).*", line).group()
                 if is_interviewee:
                     sentences = [s.strip() for s in line.split(".")] # split by period
-                    for sentence in sentences:
-                        rows.append([sentence, filename])
+                    for i in range(0, len(sentences), 2):
+                        chunk = ' '.join(sentences[i:i+2]) # Two sentence chunks
+                        rows.append([chunk, filename])
 
     # Create DataFrame
     df_transcripts = pd.DataFrame(rows, columns=["line", "filename"])
