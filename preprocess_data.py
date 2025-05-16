@@ -105,8 +105,6 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
             for index, transcript_row in filtered_df.iterrows():
                 transcript_line, filename = transcript_row["line"], transcript_row["filename"]
                 # Substring match
-                print(transcript_line)
-                print(code_line)
                 if transcript_line in code_line or code_line in transcript_line:
                     # Match, add code to matching_codes
                     code_dict[transcript_line].append((code_no, code_name))
