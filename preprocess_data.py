@@ -68,9 +68,9 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
             is_interviewee = False
             for line in lines:
                 if line.startswith("Interviewer"):
-                    is_interviewer = False
+                    is_interviewee = False
                 elif line.startswith("Interviewee:"):
-                    is_interviewer = True
+                    is_interviewee = True
                     line = re.search("(?<=Interviewee:).*", line).group()
                 if is_interviewee:
                     sentences = [s.strip() for s in line.split(".")] # split by period
