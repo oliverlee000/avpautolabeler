@@ -5,9 +5,9 @@ from collections import defaultdict
 import argparse
 
 
-def has_char_overlap(s1, s2, min_overlap=15):
+def has_char_overlap(s1, s2, min_overlap=15, increment=5):
     len1, len2 = len(s1), len(s2)
-    for i in range(len1 - min_overlap + 1):
+    for i in range(0, len1 - min_overlap + 1, increment):
         substr = s1[i:i + min_overlap]
         if substr in s2:
             return True
@@ -86,7 +86,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
                 if is_interviewee:
                     sentences = [s.strip() for s in line.split(".")] # split by period
                     for i in range(0, len(sentences), 2):
-                        chunk = ' '.join(sentences[i:i+2]) # Two sentence chunks
+                        chunk = '.'.join(sentences[i:i+2]) # Two sentence chunks
                         rows.append([chunk, filename])
 
     # Create DataFrame
@@ -107,7 +107,8 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
     code_dict = defaultdict(list)
     for index, code_row in df_codes.iterrows():
         code_line, code_no, code_name, filename = code_row["sentence"], code_row["code_no"], code_row["code_name"], code_row["filename"]
-        if not code_line or len(code_line) == 0:
+        # Skip empty text
+        if not code_line or len(code_line) == 0 or len(code_line.strip()) == 0:
             continue
         code_line = code_line.strip()
         filtered_df = df_transcripts[df_transcripts["filename"].str.startswith(filename)] # Search through entries with matching filename
