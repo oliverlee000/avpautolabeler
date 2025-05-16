@@ -68,7 +68,6 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
             # Split content into lines
             lines = content.split('\n')
             is_interviewee = False
-            for i in range(0, len(lines), 2)
             for line in lines:
                 if line.startswith("Interviewer"):
                     is_interviewee = False
