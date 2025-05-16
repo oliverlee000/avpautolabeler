@@ -86,7 +86,14 @@ def train_classifier(args):
     # Prepare training and dev set dataloaders
     train_dataloader, dev_dataloader = batch_data(args, args.train), batch_data(args, args.dev)
 
-    device = torch.device('cuda') if args.use_gpu else torch.device('cpu')
+    if torch.cuda.is_available():
+        print("Cuda is available.")
+        device = torch.device('cuda')          # Use the GPU
+        # You can also specify a specific GPU device if you have multiple:
+        # device = torch.device('cuda:0')        # Use the first GPU
+    else:
+        device = torch.device('cpu') 
+    # device = torch.device('cuda') if args.use_gpu else torch.device('cpu')
 
     # Prepare config for determining model settings
     config = {'hidden_dropout_prob': args.hidden_dropout_prob,
