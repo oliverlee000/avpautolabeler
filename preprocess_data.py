@@ -116,12 +116,14 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
                 transcript_line, filename = transcript_row["line"], transcript_row["filename"]
                 # No white space
                 transcript_line = transcript_line.strip()
+                if len(transcript_line) == 0:
+                    continue
                 code_line = code_line.strip()
                 # Substring match
                 if transcript_line in code_line or code_line in transcript_line or has_char_overlap(code_line, transcript_line, min_overlap=15):
                     # Match, add code to matching_codes
                     if filename in dictionaries:
-                        dictionaries[filename][transcript_line].append(((str(code_no), code_name)))
+                        dictionaries[filename][transcript_line].append((code_no, code_name))
                     else:
                         print(f"Extracting codes from {filename}")
                         dictionaries[filename] = defaultdict(list)
@@ -130,34 +132,11 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
             code_no = ""
             code_name = ""
             if len(value) != 0:
-                code_no = ", ".join([v[0] for v in value])
-                code_name = ", ".join([v[1] for v in value])
+                code_no = ", ".join([str(code) for code in sorted(set([v[0] for v in value]))])
+                code_name = ", ".join(sorted(set([v[1] for v in value])))
             new_row = [line, code_no, code_name, filename]
             rows.append(new_row)
-    '''
-    for index, transcript_row in df_transcripts.iterrows():
-        transcript_line, filename = transcript_row["line"], transcript_row["filename"]
-        matching_codes_no = []
-        matching_codes = []
-        # Look for all matching codes ind df_codes with matching filename
-        for index, code_row in df_codes["filename" == filename].iterrows():
-            code_line, code_no, code_name = code_row["sentence"], code_row["code_no"], code_row["code_name"]
-            # Substring match
-            if transcript_line in code_line or code_line in transcript_line:
-                # Match, add code to matching_codes
-                matching_codes_no.append(code_no)
-                matching_codes.append(code_name)
-            
-        # Convert matching codes to string format
-        if len(matching_codes_no) == 0:
-            matching_codes_no = ""
-            matching_codes = ""
-        else:
-            matching_codes_no = ", ".join(matching_codes_no)
-            matching_codes = ", ".join(matching_codes)
-        new_row = [transcript_line, matching_codes_no, matching_codes, filename]
-        rows.append(new_row)
-    '''
+   
     # Create DataFrame
     df_transcripts = pd.DataFrame(rows, columns=["text", "label", "codes", "filename"])
     return df_transcripts
