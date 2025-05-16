@@ -84,7 +84,7 @@ def create_transcript_df(transcripts_folder, filter_for_named=True):
                     is_interviewee = True
                     line = re.search("(?<=Interviewee:).*", line).group()
                 if is_interviewee:
-                    sentences = [s.strip() for s in line.split(".")] # split by period
+                    sentences = [s for s in line.split(".")] # split by period
                     for i in range(0, len(sentences), 2):
                         chunk = '.'.join(sentences[i:i+2]) # Two sentence chunks
                         rows.append([chunk, filename])
