@@ -1,5 +1,7 @@
 Trains and runs an autolabeling model based on a dataset, split into train, dev, and test sets.
 
+First, run `./setup.sh` to get all dependencies. 
+
 To test on actual dataset, run command
 ```
 python main.py --ncodes 5 --train example_data/train.csv --dev data/dev.csv
