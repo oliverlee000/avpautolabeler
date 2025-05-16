@@ -110,17 +110,19 @@ def create_labeled_transcript_df(df_codes, df_transcripts):
         # Skip empty text
         if not code_line or len(code_line) == 0 or len(code_line.strip()) == 0:
             continue
-        code_line = code_line.strip()
         filtered_df = df_transcripts[df_transcripts["filename"].str.startswith(filename)] # Search through entries with matching filename
         if len(filtered_df) > 0:
             for index, transcript_row in filtered_df.iterrows():
                 transcript_line, filename = transcript_row["line"], transcript_row["filename"]
+                # No white space
+                transcript_line = transcript_line.strip()
+                code_line = code_line.strip()
                 # Substring match
                 if transcript_line in code_line or code_line in transcript_line:
                     # Match, add code to matching_codes
-                    code_dict[transcript_line].append((code_no, code_name))
+                    code_dict[transcript_line].append((str(code_no), code_name))
                 elif has_char_overlap(code_line, transcript_line, min_overlap=15): #check for 15 character overlap
-                    code_dict[transcript_line].append((code_no, code_name))
+                    code_dict[transcript_line].append((str(code_no), code_name))
     for key, value in code_dict.items():
         code_no = ""
         code_name = ""
