@@ -148,11 +148,10 @@ def main():
     parser.add_argument('--codes_folder', type=str, help='Path to folder that contains NVivo codes as txt files')
     parser.add_argument('--transcripts_folder', type=str, help='Path to folder that contains unlabeled transcripts as txt files')
     parser.add_argument('--output_folder', type=str, help='Output folder to store processed data', default="preprocessed_output")
-    parser.add_argument('--remove_empty_transcripts', type=str, help='Remove all rows from transcripts with no codes from df')
+    parser.add_argument('--remove_empty', action='store_true', help='Remove all rows from transcripts with no codes from df')
     args = parser.parse_args()
 
-    df_codes, df_transcripts = None, None
-    if args.code_df:
+    if args.codes_df:
         print(f"Using codes_df path: {args.codes_df}")
         df_codes = pd.read_csv(args.codes_df)
     else:
@@ -171,7 +170,7 @@ def main():
 
     df_labeled_transcripts = create_labeled_transcript_df(df_codes, df_transcripts)
     
-    if args.remove_empty_transcripts:
+    if args.remove_empty:
         remove_rows = input("Would you like to delete all files with no codes from the dataframe? (y/n)")
         if remove_rows == "y":
             df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
