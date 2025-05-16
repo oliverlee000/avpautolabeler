@@ -154,27 +154,33 @@ def main():
     parser.add_argument('--filter_for_named', action='store_true', help='Filter for transcript files whose names begin with an alphabetic character')
     args = parser.parse_args()
 
+    # Create df_codes -> csv file storing all coded text from all transcripts
     if args.codes_df:
         print(f"Using codes_df path: {args.codes_df}")
         df_codes = pd.read_csv(args.codes_df)
     else:
         codes_folder = args.codes_folder if args.codes_folder else input("Insert path name of NVivo codes folder:")
         df_codes = create_code_df(codes_folder)
+        
+        # Write CSV
         df_codes_pn = os.path.join(args.output_folder, "codes.csv")
         df_codes.to_csv(df_codes_pn)
         print(f"codes_df created at pathname {df_codes_pn}.")
     
+    # Create df_transcripts -> csv file storing all lines from transcripts separated by punctuation mark
     if args.transcripts_df:
         print(f"Using transcripts_df path: {args.transcripts_df}")
         df_transcripts = pd.read_csv(args.transcripts_df)
     else:
         transcripts_folder = args.transcripts_folder if args.transcripts_folder else input("Insert path name of transcripts folder:")
         df_transcripts = create_transcript_df(transcripts_folder, filter_for_named=args.filter_for_named)
-        transcripts_pn = os.path.join(args.output_folder, "transcripts_unlabeled.csv")
-        df_transcripts.to_csv(df_codes_pn)
-        print(f"transcripts_unlabeled_df created at pathname {transcripts_pn}.")
+        
+        # Write CSV
+        df_transcripts_pn = os.path.join(args.output_folder, "transcripts_unlabeled.csv")
+        df_transcripts.to_csv(df_transcripts_pn)
+        print(f"transcripts_unlabeled_df created at pathname {df_transcripts_pn}.")
 
-
+    # Create df_labeled_transcripts -> csv file storing all lines from transcripts separated by punctuation mark, AND all codes assigned to it
     df_labeled_transcripts = create_labeled_transcript_df(df_codes, df_transcripts)
     
     if args.remove_empty:
@@ -182,6 +188,8 @@ def main():
         if remove_rows == "y":
             df_labeled_transcripts = remove_transcripts_with_no_codes(df_labeled_transcripts)
 
+    
+    # Write CSV
     transcripts_pn = os.path.join(args.output_folder, "transcripts_labeled.csv")
     df_labeled_transcripts.to_csv(transcripts_pn)
     print(f"transcripts_labeled_df created at pathname {transcripts_pn}.")
